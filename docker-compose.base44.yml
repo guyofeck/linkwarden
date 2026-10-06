@@ -1,0 +1,108 @@
+x-app: &app
+  build:
+    context: .
+    dockerfile: .base44/Dockerfile.dev
+  image: linkwarden-base44-dev
+  working_dir: /app
+  volumes:
+    - .:/app
+    - playwright-browsers:/ms-playwright
+  environment:
+    - DATABASE_URL=postgresql://linkwarden:linkwarden@postgres:5432/linkwarden
+    - MEILI_HOST=http://meilisearch:7700
+    - MEILI_MASTER_KEY=base44-dev-meili-master-key
+    - NEXTAUTH_URL=https://3000-${BASE44_PUBLIC_HOST_SUFFIX}/api/v1/auth
+    - BASE44_PUBLIC_HOST_SUFFIX
+    - STORAGE_FOLDER=/app/data
+    - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+    - PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+    - PRISMA_HIDE_UPDATE_MESSAGE=1
+    - NEXT_TELEMETRY_DISABLED=1
+    - WATCHPACK_POLLING=true
+  env_file:
+    - /run/base44/app.env
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: on-failure
+    environment:
+      - POSTGRES_USER=linkwarden
+      - POSTGRES_PASSWORD=linkwarden
+      - POSTGRES_DB=linkwarden
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U linkwarden -d linkwarden"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.13.3
+    restart: on-failure
+    environment:
+      - MEILI_MASTER_KEY=base44-dev-meili-master-key
+      - MEILI_NO_ANALYTICS=true
+    volumes:
+      - meili_data:/meili_data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:7700/health || wget -qO- http://127.0.0.1:7700/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # One-shot: install deps from the lockfile, generate Prisma client, fetch browser, migrate.
+  setup:
+    <<: *app
+    command:
+      - sh
+      - -ec
+      - |
+        YARN_ENABLE_IMMUTABLE_INSTALLS=true yarn workspaces focus linkwarden @linkwarden/web @linkwarden/worker
+        yarn prisma:generate
+        yarn workspace @linkwarden/web exec playwright install chromium-headless-shell chromium
+        yarn workspace @linkwarden/prisma exec prisma migrate deploy
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    <<: *app
+    restart: on-failure
+    command: ["sh", "-ec", "exec yarn workspace @linkwarden/web dev -H 0.0.0.0 -p 3000"]
+    ports:
+      - "3000:3000"
+    depends_on:
+      setup:
+        condition: service_completed_successfully
+      meilisearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS -o /dev/null --max-time 10 http://127.0.0.1:3000/login || (echo 'web not responding'; exit 1)"]
+      interval: 20s
+      timeout: 15s
+      start_period: 120s
+      retries: 5
+
+  worker:
+    <<: *app
+    restart: on-failure
+    command: ["sh", "-ec", "cd apps/worker && exec npx tsx watch worker.ts"]
+    depends_on:
+      setup:
+        condition: service_completed_successfully
+      meilisearch:
+        condition: service_healthy
+    healthcheck:
+      # Worker has no HTTP endpoint; check the tsx worker process is alive
+      test: ["CMD-SHELL", "pgrep -f 'tsx.*worker.ts' >/dev/null || (echo 'worker process missing'; exit 1)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 60s
+      retries: 3
+
+volumes:
+  pgdata:
+  meili_data:
+  playwright-browsers:
