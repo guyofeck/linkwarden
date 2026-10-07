@@ -43,6 +43,7 @@ const useLinks = (params: LinkRequestQuery = {}, auth?: MobileAuth) => {
       collectionId: params.collectionId,
       tagId: params.tagId,
       pinnedOnly: params.pinnedOnly ?? undefined,
+      hideRead: params.hideRead || undefined,
       searchQueryString: params.searchQueryString,
     });
   }, [
@@ -50,6 +51,7 @@ const useLinks = (params: LinkRequestQuery = {}, auth?: MobileAuth) => {
     params.collectionId,
     params.tagId,
     params.pinnedOnly,
+    params.hideRead,
     params.searchQueryString,
   ]);
 

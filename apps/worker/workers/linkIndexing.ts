@@ -23,6 +23,7 @@ async function setupLinksIndexSchema() {
   const updateFilterableAttributes = await meiliClient
     .index("links")
     .updateFilterableAttributes([
+      "id", // Personal read-status exclusions are applied before search pagination.
       "collectionOwnerId",
       "collectionMemberIds",
       "collectionName",

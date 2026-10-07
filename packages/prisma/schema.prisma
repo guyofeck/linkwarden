@@ -42,6 +42,7 @@ model User {
   collections             Collection[]
   tags                    Tag[]
   pinnedLinks             Link[]                @relation("PinnedLinks")
+  readLinks               Link[]                @relation("ReadLinks")
   createdLinks            Link[]                @relation("CreatedLinks")
   createdCollections      Collection[]          @relation("CreatedCollections")
   highlights              Highlight[]
@@ -172,6 +173,7 @@ model Link {
   description     String      @default("")
   highlight       Highlight[]
   pinnedBy        User[]      @relation("PinnedLinks")
+  readBy          User[]      @relation("ReadLinks")
   createdBy       User?       @relation("CreatedLinks", fields: [createdById], references: [id], onDelete: Cascade)
   createdById     Int?
   collection      Collection  @relation(fields: [collectionId], references: [id], onDelete: Cascade)

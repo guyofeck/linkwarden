@@ -69,6 +69,7 @@ export default async function getDashboardData(userId: number) {
         include: {
           tags: true,
           collection: true,
+          readBy: { where: { id: userId }, select: { id: true } },
           pinnedBy: {
             where: { id: userId },
             select: { id: true },
@@ -88,6 +89,7 @@ export default async function getDashboardData(userId: number) {
         include: {
           tags: true,
           collection: true,
+          readBy: { where: { id: userId }, select: { id: true } },
           pinnedBy: {
             where: { id: userId },
             select: { id: true },
@@ -110,6 +112,7 @@ export default async function getDashboardData(userId: number) {
           include: {
             tags: true,
             collection: true,
+            readBy: { where: { id: userId }, select: { id: true } },
             pinnedBy: {
               where: { id: userId },
               select: { id: true },

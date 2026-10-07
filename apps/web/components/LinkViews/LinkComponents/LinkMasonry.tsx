@@ -73,9 +73,12 @@ function LinkMasonry({
   return (
     <div
       ref={setNodeRef}
+      data-link-id={link.id}
+      data-read={!isPublicRoute && Boolean(link.readBy?.length)}
       className={cn(
         "border border-solid border-neutral-content bg-base-200 shadow-md hover:shadow-none duration-100 rounded-xl relative group",
-        isSelected && "border-primary bg-base-300"
+        isSelected && "border-primary bg-base-300",
+        !isPublicRoute && link.readBy?.length ? "opacity-50" : "opacity-100"
       )}
       onClick={() =>
         editMode

@@ -63,6 +63,9 @@ export default async function searchLinks({
   const pinnedCondition =
     query.pinnedOnly && userId ? { pinnedBy: { some: { id: userId } } } : {};
 
+  const unreadCondition =
+    query.hideRead && userId ? { readBy: { none: { id: userId } } } : {};
+
   if (meiliClient && query.searchQueryString) {
     const tokens = parseSearchTokens(query.searchQueryString);
     const meiliQuery = buildMeiliQuery(tokens);
@@ -72,6 +75,20 @@ export default async function searchLinks({
       userId,
       publicOnly,
     });
+
+    // Exclude read links before pagination, so a page of read matches doesn't
+    // hide unread results on later pages.
+    if (query.hideRead && userId) {
+      const readLinks = await prisma.link.findMany({
+        where: { readBy: { some: { id: userId } } },
+        select: { id: true },
+      });
+      if (readLinks.length) {
+        meiliFilters.push(
+          `id NOT IN [${readLinks.map((link) => link.id).join(",")}]`
+        );
+      }
+    }
 
     const limit = paginationTakeCount;
     const offset = query.cursor || 0;
@@ -111,6 +128,7 @@ export default async function searchLinks({
         id: { in: meiliIds },
         AND: [
           ...accessCondition,
+          unreadCondition,
           ...collectionCondition,
           {
             OR: [
@@ -128,6 +146,9 @@ export default async function searchLinks({
       include: {
         tags: true,
         collection: true,
+        readBy: userId
+          ? { where: { id: userId }, select: { id: true } }
+          : undefined,
         pinnedBy: userId
           ? {
               where: { id: userId },
@@ -197,6 +218,7 @@ export default async function searchLinks({
     where: {
       AND: [
         ...accessCondition,
+        unreadCondition,
         ...collectionCondition,
         {
           OR: [
@@ -217,6 +239,9 @@ export default async function searchLinks({
     include: {
       tags: true,
       collection: true,
+      readBy: userId
+        ? { where: { id: userId }, select: { id: true } }
+        : undefined,
       pinnedBy: userId
         ? {
             where: { id: userId },

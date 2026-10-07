@@ -11,4 +11,5 @@
 
 ## Verify
 - `curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/login` → 200. Register a user at `/register` (credentials auth is on by default).
-- Tests: `docker compose -f docker-compose.base44.yml exec web yarn test` (vitest from repo root).
+- Tests: `docker compose -f docker-compose.base44.yml exec -T web yarn test run` (vitest from repo root). Typecheck: `docker compose -f docker-compose.base44.yml exec -T -w /app/apps/web web /app/node_modules/.bin/tsc --noEmit --incremental false`.
+- Read status is a personal `ReadLinks` relation, not a shared link flag. `PUT /api/v1/links/:id/read` accepts `{ isRead: boolean }` and allows owners or any collection member (including read-only members). Authenticated link responses include only the current user's `readBy`; public responses omit it. `hideRead=true` filters before pagination; Meilisearch needs `id` in its filterable attributes (the worker configures this on startup).

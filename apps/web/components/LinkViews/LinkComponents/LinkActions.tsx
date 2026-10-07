@@ -8,6 +8,7 @@ import LinkModal from "@/components/ModalContent/LinkModal";
 import { useRouter } from "next/router";
 import clsx from "clsx";
 import usePinLink from "@/lib/client/pinLink";
+import { useSetLinkRead } from "@linkwarden/router/readLinks";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -45,6 +46,8 @@ export default function LinkActions({
   const updateArchiveMutation = useUpdateArchive();
 
   const pinLink = usePinLink();
+  const setRead = useSetLinkRead();
+  const isRead = Boolean(link.readBy?.length);
 
   const [editLinkModal, setEditLinkModal] = useState(false);
   const [deleteLinkModal, setDeleteLinkModal] = useState(false);
@@ -92,6 +95,24 @@ export default function LinkActions({
           </DropdownMenuTrigger>
 
           <DropdownMenuContent sideOffset={4} align="end">
+            <DropdownMenuItem
+              disabled={setRead.isPending}
+              onSelect={() =>
+                setRead.mutate(
+                  { linkId: link.id as number, isRead: !isRead },
+                  { onError: (error) => toast.error(error.message) }
+                )
+              }
+            >
+              <i
+                aria-hidden="true"
+                className={isRead ? "bi-envelope" : "bi-check2-circle"}
+              />
+              {t(isRead ? "mark_as_unread" : "mark_as_read", {
+                defaultValue: isRead ? "Mark as unread" : "Mark as read",
+              })}
+            </DropdownMenuItem>
+
             <DropdownMenuItem onSelect={() => pinLink(link)}>
               <i className="bi-pin" />
 

@@ -30,6 +30,7 @@ export default async function getLinkById(userId: number, linkId: number) {
       include: {
         tags: true,
         collection: true,
+        readBy: { where: { id: userId }, select: { id: true } },
         pinnedBy: {
           where: { id: userId },
           select: { id: true },

@@ -63,13 +63,19 @@ function LinkList({
     <>
       <div
         ref={setNodeRef}
+        data-link-id={link.id}
+        data-read={!isPublicRoute && Boolean(link.readBy?.length)}
         className={cn(
           "rounded-md border relative group items-center flex",
           isSelected
             ? "border border-primary bg-base-300"
             : "border-transparent",
           !isPWA() ? "hover:bg-base-300 px-2 py-1" : "py-1",
-          isDragging ? "opacity-30" : "opacity-100",
+          isDragging
+            ? "opacity-30"
+            : !isPublicRoute && link.readBy?.length
+              ? "opacity-50"
+              : "opacity-100",
           "duration-200, touch-manipulation select-none"
         )}
         onClick={() =>

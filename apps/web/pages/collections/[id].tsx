@@ -49,9 +49,16 @@ const Page: NextPageWithLayout = () => {
     Number(localStorage.getItem("sortBy")) ?? Sort.DateNewestFirst
   );
 
+  const [hideReadInCollection, setHideReadInCollection] = useState<
+    Record<string, boolean>
+  >({});
+  const collectionKey = String(router.query.id);
+  const hideRead = hideReadInCollection[collectionKey] ?? false;
+
   const { links, data } = useLinks({
     sort: sortBy,
     collectionId: Number(router.query.id),
+    hideRead,
   });
 
   const [activeLink, setActiveLink] =
@@ -346,8 +353,18 @@ const Page: NextPageWithLayout = () => {
             : undefined
         }
         links={links}
+        hideRead={hideRead}
+        setHideRead={(value) => {
+          setHideReadInCollection((previous) => ({
+            ...previous,
+            [collectionKey]: value,
+          }));
+          setEditMode(false);
+        }}
       >
-        {collections.some((e) => e.parentId === activeCollection?.id) ? (
+        {hideRead ? (
+          <p>{t("unread_links", { defaultValue: "Unread links" })}</p>
+        ) : collections.some((e) => e.parentId === activeCollection?.id) ? (
           <PageHeader
             icon={"bi-link-45deg"}
             title={t("links")}

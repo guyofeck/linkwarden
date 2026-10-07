@@ -52,6 +52,7 @@ export default async function updateLinkById(
       },
       include: {
         collection: true,
+        readBy: { where: { id: userId }, select: { id: true } },
         pinnedBy: isCollectionOwner
           ? {
               where: { id: userId },
@@ -183,6 +184,7 @@ export default async function updateLinkById(
       include: {
         tags: true,
         collection: true,
+        readBy: { where: { id: userId }, select: { id: true } },
         pinnedBy: isCollectionOwner
           ? {
               where: { id: userId },

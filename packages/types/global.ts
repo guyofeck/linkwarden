@@ -30,6 +30,7 @@ export interface LinkIncludingShortenedCollectionAndTags
   pinnedBy?: {
     id: number;
   }[];
+  readBy?: { id: number }[];
   updatedAt?: string;
   collection: OptionalExcluding<Collection, "name" | "ownerId">;
 }
@@ -109,6 +110,7 @@ export type LinkRequestQuery = {
   collectionId?: number;
   tagId?: number;
   pinnedOnly?: boolean;
+  hideRead?: boolean;
   searchQueryString?: string;
 };
 

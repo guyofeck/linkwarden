@@ -1,4 +1,8 @@
 {
+  "mark_as_read": "Mark as read",
+  "mark_as_unread": "Mark as unread",
+  "hide_read_links": "Hide read links",
+  "unread_links": "Unread links",
   "user_administration": "User Administration",
   "search_users": "Search for Users",
   "no_users_found": "No users found.",
