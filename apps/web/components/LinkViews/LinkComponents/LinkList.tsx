@@ -88,15 +88,20 @@ function LinkList({
           {...attributes}
           {...listeners}
         >
-          {show.icon && (
+          {show.icon && !show.name && (
             <div className="shrink-0">
               <LinkIcon link={link} hideBackground />
             </div>
           )}
 
-          <div className="w-[calc(100%-56px)] ml-2">
+          <div className="flex-1 min-w-0 ml-2">
             {show.name && (
-              <div className="flex gap-1 mr-20">
+              <div className="flex items-center gap-2 mr-20">
+                {show.icon && (
+                  <div className="shrink-0">
+                    <LinkIcon link={link} hideBackground size="sm" />
+                  </div>
+                )}
                 <p className="truncate text-primary">
                   {unescapeString(link.name)}
                 </p>

@@ -11,15 +11,18 @@ function LinkIcon({
   link,
   className,
   hideBackground,
+  size = "default",
   onClick,
 }: {
   link: LinkIncludingShortenedCollectionAndTags;
   className?: string;
   hideBackground?: boolean;
+  size?: "default" | "sm";
   onClick?: Function;
 }) {
   let iconClasses: string = clsx(
-    "rounded flex item-center justify-center shadow select-none z-10 w-12 h-12",
+    "rounded flex items-center justify-center select-none z-10",
+    size === "sm" ? "w-4 h-4 text-base" : "w-12 h-12 shadow text-4xl",
     !hideBackground &&
       "rounded-md backdrop-blur-xl bg-white/30 dark:bg-black/30 bg-opacity-50 p-1",
     className
@@ -40,7 +43,7 @@ function LinkIcon({
         <div className={iconClasses}>
           <Icon
             icon={link.icon}
-            size={30}
+            size={size === "sm" ? 16 : 30}
             weight={(link.iconWeight || "regular") as IconWeight}
             color={link.color || oklchVariableToHex("--p")}
             className="m-auto"
@@ -101,7 +104,7 @@ const LinkPlaceholderIcon = ({
     <div
       className={clsx(
         iconClasses,
-        "aspect-square text-4xl text-[oklch(var(--p))]"
+        "aspect-square text-[oklch(var(--p))]"
       )}
     >
       <i className={`${icon} m-auto`}></i>
