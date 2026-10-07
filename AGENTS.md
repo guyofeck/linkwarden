@@ -6,9 +6,10 @@
 - `.base44/Dockerfile.dev` only holds system deps (Chromium libs pinned to Playwright 1.57.0 — bump if the lockfile's playwright version changes). Source is bind-mounted; `node_modules` lives in the checkout (gitignored).
 - `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1` makes the web `postinstall` (`playwright install --with-deps`) a no-op so it doesn't apt-get on every install.
 - The `monolith` binary (single-file HTML archives) is not installed in dev; that archive format is reported as unavailable. Screenshots/PDF/readability still work.
-- `NEXTAUTH_URL` must be the public preview URL + `/api/v1/auth`; it's set from `BASE44_PUBLIC_HOST_SUFFIX` in compose. `next.config.js` adds `allowedDevOrigins` for the preview origin only when that var is set.
+- `NEXTAUTH_URL` must be the public preview URL + `/api/v1/auth`; it's set from `BASE44_PUBLIC_HOST_SUFFIX` in compose. `next.config.js` adds `allowedDevOrigins` for the preview origin only when `BASE44_PREVIEW_MODE === "1"` and that var is set; unset/other flag values leave the original origin policy unchanged. Compose passes the flag through without hardcoding it.
 - Uploaded/archived files go to `./data` (`STORAGE_FOLDER`, gitignored).
 
 ## Verify
 - `curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/login` → 200. Register a user at `/register` (credentials auth is on by default).
 - Tests: `docker compose -f docker-compose.base44.yml exec web yarn test` (vitest from repo root).
+- Personal read status is the `ReadLinks` relation (never shared collection metadata). `/api/v1/links/:id/read` accepts `{ isRead: boolean }` for owners and members including viewers; authenticated link reads return only the current user's `readBy`. The collection's `hideRead` filter is applied before database pagination. Regression check: `docker compose -f docker-compose.base44.yml exec -T web yarn test run apps/web/lib/api/controllers/links/linkId/setLinkReadStatus.test.ts`.

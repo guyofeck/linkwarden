@@ -63,6 +63,8 @@ function LinkList({
     <>
       <div
         ref={setNodeRef}
+        data-link-id={link.id}
+        data-read={!isPublicRoute && !!link.readBy?.length}
         className={cn(
           "rounded-md border relative group items-center flex",
           isSelected
@@ -81,7 +83,10 @@ function LinkList({
         }
       >
         <div
-          className="flex items-center cursor-pointer w-full min-h-12"
+          className={cn(
+            "flex items-center cursor-pointer w-full min-h-12",
+            !isPublicRoute && !!link.readBy?.length && "opacity-50"
+          )}
           onClick={() =>
             !editMode && openLink(link, user, () => setLinkModal(true))
           }

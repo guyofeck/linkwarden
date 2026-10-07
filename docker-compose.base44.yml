@@ -13,6 +13,7 @@ x-app: &app
     - MEILI_MASTER_KEY=base44-dev-meili-master-key
     - NEXTAUTH_URL=https://3000-${BASE44_PUBLIC_HOST_SUFFIX}/api/v1/auth
     - BASE44_PUBLIC_HOST_SUFFIX
+    - BASE44_PREVIEW_MODE
     - STORAGE_FOLDER=/app/data
     - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
     - PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1

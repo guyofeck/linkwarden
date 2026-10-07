@@ -27,6 +27,7 @@ export default async function getDashboardData(
       ],
     },
     include: {
+      readBy: { where: { id: userId }, select: { id: true } },
       tags: true,
       collection: true,
       pinnedBy: {
@@ -43,6 +44,7 @@ export default async function getDashboardData(
       collectionId: { in: accessibleCollectionIds },
     },
     include: {
+      readBy: { where: { id: userId }, select: { id: true } },
       tags: true,
       collection: true,
       pinnedBy: {

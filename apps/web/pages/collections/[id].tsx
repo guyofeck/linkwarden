@@ -49,9 +49,16 @@ const Page: NextPageWithLayout = () => {
     Number(localStorage.getItem("sortBy")) ?? Sort.DateNewestFirst
   );
 
+  const [hideRead, setHideRead] = useState(false);
+
+  useEffect(() => {
+    setHideRead(false);
+  }, [router.query.id]);
+
   const { links, data } = useLinks({
     sort: sortBy,
     collectionId: Number(router.query.id),
+    hideRead,
   });
 
   const [activeLink, setActiveLink] =
@@ -346,31 +353,37 @@ const Page: NextPageWithLayout = () => {
             : undefined
         }
         links={links}
+        hideRead={hideRead}
+        setHideRead={setHideRead}
       >
         {collections.some((e) => e.parentId === activeCollection?.id) ? (
           <PageHeader
             icon={"bi-link-45deg"}
             title={t("links")}
             description={
-              activeCollection?._count?.links === 1
-                ? t("showing_count_result", {
-                    count: activeCollection?._count?.links,
-                  })
-                : t("showing_count_results", {
-                    count: activeCollection?._count?.links,
-                  })
+              hideRead
+                ? t("unread_links", "Unread links")
+                : activeCollection?._count?.links === 1
+                  ? t("showing_count_result", {
+                      count: activeCollection?._count?.links,
+                    })
+                  : t("showing_count_results", {
+                      count: activeCollection?._count?.links,
+                    })
             }
             className="scale-90 w-fit"
           />
         ) : (
           <p>
-            {activeCollection?._count?.links === 1
-              ? t("showing_count_result", {
-                  count: activeCollection?._count?.links,
-                })
-              : t("showing_count_results", {
-                  count: activeCollection?._count?.links,
-                })}
+            {hideRead
+              ? t("unread_links", "Unread links")
+              : activeCollection?._count?.links === 1
+                ? t("showing_count_result", {
+                    count: activeCollection?._count?.links,
+                  })
+                : t("showing_count_results", {
+                    count: activeCollection?._count?.links,
+                  })}
           </p>
         )}
       </LinkListOptions>
@@ -381,7 +394,16 @@ const Page: NextPageWithLayout = () => {
         layout={viewMode}
         useData={data}
       />
-      {!data.isLoading && links && !links[0] && <NoLinksFound />}
+      {!data.isLoading &&
+        links &&
+        !links[0] &&
+        (hideRead ? (
+          <p className="py-8 text-center text-neutral">
+            {t("no_unread_links", "No unread links in this collection.")}
+          </p>
+        ) : (
+          <NoLinksFound />
+        ))}
       {activeCollection && (
         <>
           {editCollectionModal && (

@@ -32,6 +32,8 @@ type Props = {
   editMode?: boolean;
   setEditMode?: (mode: boolean) => void;
   links: LinkIncludingShortenedCollectionAndTags[];
+  hideRead?: boolean;
+  setHideRead?: (hide: boolean) => void;
 };
 
 const LinkListOptions = ({
@@ -44,6 +46,8 @@ const LinkListOptions = ({
   editMode,
   setEditMode,
   links,
+  hideRead,
+  setHideRead,
 }: Props) => {
   const { selectedIds, setSelected, clearSelected, selectionCount } =
     useLinkStore();
@@ -116,11 +120,25 @@ const LinkListOptions = ({
 
   return (
     <>
-      <div className="flex justify-between items-center">
+      <div className="flex flex-wrap gap-2 justify-between items-center">
         {children}
 
         <div className="flex gap-3 items-center justify-end">
           <div className="flex gap-2 items-center mt-2">
+            {setHideRead && (
+              <label className="flex items-center gap-2 cursor-pointer text-sm">
+                <input
+                  type="checkbox"
+                  className="checkbox checkbox-primary checkbox-sm"
+                  checked={hideRead}
+                  onChange={(event) => {
+                    clearSelected();
+                    setHideRead(event.target.checked);
+                  }}
+                />
+                {t("hide_read_links", "Hide read links")}
+              </label>
+            )}
             {links &&
               links.length > 0 &&
               editMode !== undefined &&

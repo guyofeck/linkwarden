@@ -63,6 +63,12 @@ export default async function searchLinks({
   const pinnedCondition =
     query.pinnedOnly && userId ? { pinnedBy: { some: { id: userId } } } : {};
 
+  const readCondition =
+    query.hideRead && userId ? { readBy: { none: { id: userId } } } : {};
+  const readInclude = userId
+    ? { where: { id: userId }, select: { id: true } }
+    : false;
+
   if (meiliClient && query.searchQueryString) {
     const tokens = parseSearchTokens(query.searchQueryString);
     const meiliQuery = buildMeiliQuery(tokens);
@@ -111,6 +117,7 @@ export default async function searchLinks({
         id: { in: meiliIds },
         AND: [
           ...accessCondition,
+          readCondition,
           ...collectionCondition,
           {
             OR: [
@@ -126,6 +133,7 @@ export default async function searchLinks({
         textContent: true,
       },
       include: {
+        readBy: readInclude,
         tags: true,
         collection: true,
         pinnedBy: userId
@@ -197,6 +205,7 @@ export default async function searchLinks({
     where: {
       AND: [
         ...accessCondition,
+        readCondition,
         ...collectionCondition,
         {
           OR: [
@@ -215,6 +224,7 @@ export default async function searchLinks({
       textContent: true,
     },
     include: {
+      readBy: readInclude,
       tags: true,
       collection: true,
       pinnedBy: userId

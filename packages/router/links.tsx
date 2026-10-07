@@ -43,6 +43,7 @@ const useLinks = (params: LinkRequestQuery = {}, auth?: MobileAuth) => {
       collectionId: params.collectionId,
       tagId: params.tagId,
       pinnedOnly: params.pinnedOnly ?? undefined,
+      hideRead: params.hideRead ?? undefined,
       searchQueryString: params.searchQueryString,
     });
   }, [
@@ -50,6 +51,7 @@ const useLinks = (params: LinkRequestQuery = {}, auth?: MobileAuth) => {
     params.collectionId,
     params.tagId,
     params.pinnedOnly,
+    params.hideRead,
     params.searchQueryString,
   ]);
 
@@ -712,6 +714,30 @@ const useUpdateLink = ({
       queryClient.invalidateQueries({ queryKey: ["collections"] });
       queryClient.invalidateQueries({ queryKey: ["tags"] });
       queryClient.invalidateQueries({ queryKey: ["publicLinks"] });
+    },
+  });
+};
+
+export const useSetLinkReadStatus = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ id, isRead }: { id: number; isRead: boolean }) => {
+      const response = await fetch(`/api/v1/links/${id}/read`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isRead }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.response);
+      return data.response;
+    },
+    onSuccess: async (_data, { id }) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["links"] }),
+        queryClient.invalidateQueries({ queryKey: ["link", id] }),
+        queryClient.invalidateQueries({ queryKey: ["dashboardData"] }),
+      ]);
     },
   });
 };

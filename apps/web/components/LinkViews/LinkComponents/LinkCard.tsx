@@ -70,6 +70,8 @@ function LinkCard({
   return (
     <div
       ref={setNodeRef}
+      data-link-id={link.id}
+      data-read={!isPublicRoute && !!link.readBy?.length}
       className={cn(
         "border border-solid border-neutral-content bg-base-200 shadow-md hover:shadow-none duration-100 rounded-xl relative group",
         isSelected && "border-primary bg-base-300",
@@ -86,7 +88,10 @@ function LinkCard({
     >
       <div ref={ref} className="h-full">
         <div
-          className="rounded-xl cursor-pointer h-full flex flex-col justify-between"
+          className={cn(
+            "rounded-xl cursor-pointer h-full flex flex-col justify-between",
+            !isPublicRoute && !!link.readBy?.length && "opacity-50"
+          )}
           onClick={() =>
             !editMode && openLink(link, user, () => setLinkModal(true))
           }

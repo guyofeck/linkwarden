@@ -2,7 +2,11 @@ import { useState } from "react";
 import { LinkIncludingShortenedCollectionAndTags } from "@linkwarden/types/global";
 import usePermissions from "@/hooks/usePermissions";
 import DeleteLinkModal from "@/components/ModalContent/DeleteLinkModal";
-import { useDeleteLink, useUpdateArchive } from "@linkwarden/router/links";
+import {
+  useDeleteLink,
+  useUpdateArchive,
+  useSetLinkReadStatus,
+} from "@linkwarden/router/links";
 import toast from "react-hot-toast";
 import LinkModal from "@/components/ModalContent/LinkModal";
 import { useRouter } from "next/router";
@@ -45,6 +49,7 @@ export default function LinkActions({
   const updateArchiveMutation = useUpdateArchive();
 
   const pinLink = usePinLink();
+  const setReadStatus = useSetLinkReadStatus();
 
   const [editLinkModal, setEditLinkModal] = useState(false);
   const [deleteLinkModal, setDeleteLinkModal] = useState(false);
@@ -92,6 +97,29 @@ export default function LinkActions({
           </DropdownMenuTrigger>
 
           <DropdownMenuContent sideOffset={4} align="end">
+            <DropdownMenuItem
+              disabled={setReadStatus.isPending}
+              onSelect={async () => {
+                try {
+                  await setReadStatus.mutateAsync({
+                    id: link.id as number,
+                    isRead: !link.readBy?.length,
+                  });
+                } catch (error: any) {
+                  toast.error(error.message);
+                }
+              }}
+            >
+              <i
+                className={
+                  link.readBy?.length ? "bi-circle" : "bi-check-circle"
+                }
+              />
+              {link.readBy?.length
+                ? t("mark_as_unread", "Mark as unread")
+                : t("mark_as_read", "Mark as read")}
+            </DropdownMenuItem>
+
             <DropdownMenuItem onSelect={() => pinLink(link)}>
               <i className="bi-pin" />
 

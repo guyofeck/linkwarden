@@ -100,6 +100,7 @@ export default async function getLink(userId: number, query: LinkRequestQuery) {
           collectionId: { in: accessibleCollectionIds },
         },
         ...collectionCondition,
+        ...(query.hideRead ? [{ readBy: { none: { id: userId } } }] : []),
         {
           OR: [
             ...tagCondition,
@@ -118,6 +119,7 @@ export default async function getLink(userId: number, query: LinkRequestQuery) {
       ],
     },
     include: {
+      readBy: { where: { id: userId }, select: { id: true } },
       tags: true,
       collection: true,
       pinnedBy: {

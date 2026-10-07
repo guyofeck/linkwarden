@@ -22,6 +22,7 @@ export default async function search(
       pinnedOnly: req.query.pinnedOnly
         ? req.query.pinnedOnly === "true"
         : undefined,
+      hideRead: req.query.hideRead === "true",
       searchQueryString: req.query.searchQueryString
         ? (req.query.searchQueryString as string)
         : undefined,

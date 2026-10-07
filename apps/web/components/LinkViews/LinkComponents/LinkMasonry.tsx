@@ -73,6 +73,8 @@ function LinkMasonry({
   return (
     <div
       ref={setNodeRef}
+      data-link-id={link.id}
+      data-read={!isPublicRoute && !!link.readBy?.length}
       className={cn(
         "border border-solid border-neutral-content bg-base-200 shadow-md hover:shadow-none duration-100 rounded-xl relative group",
         isSelected && "border-primary bg-base-300"
@@ -87,7 +89,10 @@ function LinkMasonry({
     >
       <div ref={ref}>
         <div
-          className="rounded-xl cursor-pointer"
+          className={cn(
+            "rounded-xl cursor-pointer",
+            !isPublicRoute && !!link.readBy?.length && "opacity-50"
+          )}
           onClick={() =>
             !editMode && openLink(link, user, () => setLinkModal(true))
           }
