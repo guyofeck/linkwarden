@@ -88,19 +88,24 @@ function LinkList({
           {...attributes}
           {...listeners}
         >
-          {show.icon && (
-            <div className="shrink-0">
-              <LinkIcon link={link} hideBackground />
-            </div>
-          )}
-
-          <div className="w-[calc(100%-56px)] ml-2">
-            {show.name && (
-              <div className="flex gap-1 mr-20">
-                <p className="truncate text-primary">
-                  {unescapeString(link.name)}
-                </p>
-                {show.preserved_formats &&
+          <div className="flex-1 min-w-0 ml-2">
+            {(show.icon || show.name) && (
+              <div className="flex items-center gap-2 mr-20">
+                {show.icon && (
+                  <div className="shrink-0">
+                    <LinkIcon
+                      link={link}
+                      hideBackground
+                      className="!w-5 !h-5 !shadow-none [&_i]:text-xl [&_svg]:w-5 [&_svg]:h-5"
+                    />
+                  </div>
+                )}
+                {show.name && (
+                  <p className="truncate text-primary">
+                    {unescapeString(link.name)}
+                  </p>
+                )}
+                {show.name && show.preserved_formats &&
                   link.type === "url" &&
                   atLeastOneFormatAvailable(link) && (
                     <div className="pl-1 inline-block text-lg">

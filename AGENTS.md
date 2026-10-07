@@ -6,7 +6,7 @@
 - `.base44/Dockerfile.dev` only holds system deps (Chromium libs pinned to Playwright 1.57.0 — bump if the lockfile's playwright version changes). Source is bind-mounted; `node_modules` lives in the checkout (gitignored).
 - `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1` makes the web `postinstall` (`playwright install --with-deps`) a no-op so it doesn't apt-get on every install.
 - The `monolith` binary (single-file HTML archives) is not installed in dev; that archive format is reported as unavailable. Screenshots/PDF/readability still work.
-- `NEXTAUTH_URL` must be the public preview URL + `/api/v1/auth`; it's set from `BASE44_PUBLIC_HOST_SUFFIX` in compose. `next.config.js` adds `allowedDevOrigins` for the preview origin only when that var is set.
+- `NEXTAUTH_URL` must be the public preview URL + `/api/v1/auth`; it's set from `BASE44_PUBLIC_HOST_SUFFIX` in compose. `next.config.js` adds `allowedDevOrigins` for the preview origin only when `BASE44_PREVIEW_MODE` is exactly `"1"` and that host variable is set; with the flag unset, the original Next.js origin behavior is unchanged. Compose passes the flag through for this sandbox-only HMR allowance.
 - Uploaded/archived files go to `./data` (`STORAGE_FOLDER`, gitignored).
 
 ## Verify
